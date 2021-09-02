@@ -63,6 +63,7 @@ int main(int argc, char **argv, char **env)
 	int opened = 0;
 	pid_t pid;
 	int status = 0;
+	int flag = 0;
 
 	if (argc > 1)
 	{
@@ -84,6 +85,8 @@ int main(int argc, char **argv, char **env)
 			while (m < len)
 			{
 				line[m] = argv[i];
+				if(strcmp(argv[i], "cd") == 0)
+					flag = 1;
 				m++;
 				i++;
 			}
@@ -92,7 +95,7 @@ int main(int argc, char **argv, char **env)
 				is_pipe = 1;
 			else
 				is_pipe = 0;
-			if (argv[i] && strcmp(argv[i], "cd") == 0)
+			if ((argv[i] && strcmp(argv[i], "cd") == 0) || (flag == 1))
 				ft_cd(line);
 
 			if (opened)
@@ -115,8 +118,11 @@ int main(int argc, char **argv, char **env)
 				exit_fatal();
 			else if (pid == 0)
 			{
-				if (execve(line[0], line, env))
-					error_cannot_exec(line[0]);
+				if(flag == 0)
+				{
+					if (execve(line[0], line, env))
+						error_cannot_exec(line[0]);	
+				}
 				exit(0);
 			}
 			else
@@ -134,7 +140,7 @@ int main(int argc, char **argv, char **env)
 				close(save1);
 				opened = 1;
 			}
-
+			flag = 0;
 			free(line);
 		}
 	}
